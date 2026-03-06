@@ -21,6 +21,7 @@ class DnsPreferences(private val context: Context) {
         private val KEY_AUTO_CONNECT = booleanPreferencesKey("auto_connect_on_boot")
         private val KEY_LOG_QUERIES = booleanPreferencesKey("log_queries")
         private val KEY_APP_LOCK_ENABLED = booleanPreferencesKey("app_lock_enabled")
+        private val KEY_THEME_MODE = stringPreferencesKey("theme_mode")
     }
 
     val selectedServerKey: Flow<String> = context.dataStore.data.map { prefs ->
@@ -45,6 +46,10 @@ class DnsPreferences(private val context: Context) {
 
     val appLockEnabled: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[KEY_APP_LOCK_ENABLED] ?: false
+    }
+
+    val themeMode: Flow<String> = context.dataStore.data.map { prefs ->
+        prefs[KEY_THEME_MODE] ?: "system"
     }
 
     suspend fun setSelectedServer(key: String) {
@@ -80,6 +85,12 @@ class DnsPreferences(private val context: Context) {
     suspend fun setAppLockEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[KEY_APP_LOCK_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setThemeMode(mode: String) {
+        context.dataStore.edit { prefs ->
+            prefs[KEY_THEME_MODE] = mode
         }
     }
 }

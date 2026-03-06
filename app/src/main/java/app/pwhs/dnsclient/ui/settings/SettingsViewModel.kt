@@ -12,7 +12,8 @@ import kotlinx.coroutines.launch
 data class SettingsUiState(
     val autoConnect: Boolean = false,
     val logQueries: Boolean = true,
-    val appLockEnabled: Boolean = false
+    val appLockEnabled: Boolean = false,
+    val themeMode: String = "system"
 )
 
 class SettingsViewModel(
@@ -22,12 +23,14 @@ class SettingsViewModel(
     val uiState: StateFlow<SettingsUiState> = combine(
         preferences.autoConnect,
         preferences.logQueries,
-        preferences.appLockEnabled
-    ) { autoConnect, logQueries, appLockEnabled ->
+        preferences.appLockEnabled,
+        preferences.themeMode
+    ) { autoConnect, logQueries, appLockEnabled, themeMode ->
         SettingsUiState(
             autoConnect = autoConnect,
             logQueries = logQueries,
-            appLockEnabled = appLockEnabled
+            appLockEnabled = appLockEnabled,
+            themeMode = themeMode
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsUiState())
 
@@ -46,6 +49,12 @@ class SettingsViewModel(
     fun setAppLockEnabled(enabled: Boolean) {
         viewModelScope.launch {
             preferences.setAppLockEnabled(enabled)
+        }
+    }
+
+    fun setThemeMode(mode: String) {
+        viewModelScope.launch {
+            preferences.setThemeMode(mode)
         }
     }
 }

@@ -22,6 +22,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -52,7 +54,14 @@ class MainActivity : FragmentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            DNSClientTheme {
+            val themeMode by preferences.themeMode.collectAsState(initial = "system")
+            val darkTheme = when (themeMode) {
+                "light" -> false
+                "dark" -> true
+                else -> isSystemInDarkTheme()
+            }
+
+            DNSClientTheme(darkTheme = darkTheme, dynamicColor = false) {
                 AnimatedVisibility(
                     visible = !showLockScreen || isAuthenticated,
                     enter = fadeIn(),

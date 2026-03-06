@@ -82,7 +82,8 @@ fun HomeScreen(
         serverListUiState = serverState,
         navigateToQueryLogs = { navigator.navigate(QueryLogScreenDestination) },
         navigateToSettings = { navigator.navigate(SettingsScreenDestination) },
-        uiAction = { homeViewModel.onAction(it) }
+        uiAction = { homeViewModel.onAction(it) },
+        serverListUiAction = { serverViewModel.onAction(it) },
     )
 }
 
