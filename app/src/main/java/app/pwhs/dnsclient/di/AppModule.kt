@@ -54,5 +54,5 @@ val appModule = module {
     viewModel { ServerListViewModel(get()) }
     viewModel { QueryLogViewModel(get()) }
     viewModel { SettingsViewModel(get()) }
-    viewModel { DiagnosticsViewModel(get()) }
+    viewModel { DiagnosticsViewModel(get(), get()) }
 }

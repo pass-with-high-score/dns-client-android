@@ -1,9 +1,10 @@
 package app.pwhs.dnsclient.ui.diagnostics
 
+import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import app.pwhs.dnsclient.service.DnsVpnService
 import io.ktor.client.HttpClient
@@ -17,19 +18,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-data class DiagnosticsUiState(
-    val connectionType: String = "Unknown",
-    val publicIp: String = "Fetching...",
-    val isLoadingIp: Boolean = true,
-    val isConnected: Boolean = false,
-    val bytesSent: Long = 0,
-    val bytesReceived: Long = 0,
-    val totalQueries: Long = 0
-)
-
 class DiagnosticsViewModel(
-    private val httpClient: HttpClient
-) : ViewModel() {
+    private val httpClient: HttpClient,
+    application: Application
+) : AndroidViewModel(application) {
 
     private val _connectionType = MutableStateFlow("Unknown")
     private val _publicIp = MutableStateFlow("Fetching...")
@@ -63,7 +55,17 @@ class DiagnosticsViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DiagnosticsUiState())
 
-    fun loadDiagnostics(context: Context) {
+    init {
+        loadDiagnostics(application.applicationContext)
+    }
+
+    fun onAction(action: DiagnosticsUiAction) {
+        when (action) {
+            DiagnosticsUiAction.OnRefresh -> loadDiagnostics(getApplication<Application>().applicationContext)
+        }
+    }
+
+    private fun loadDiagnostics(context: Context) {
         detectConnectionType(context)
         fetchPublicIp()
     }
@@ -96,9 +98,5 @@ class DiagnosticsViewModel(
                 _isLoadingIp.value = false
             }
         }
-    }
-
-    fun refresh(context: Context) {
-        loadDiagnostics(context)
     }
 }
