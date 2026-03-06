@@ -50,7 +50,7 @@ val appModule = module {
     single { DnsPreferences(androidContext()) }
 
     // --- ViewModels ---
-    viewModel { HomeViewModel(get()) }
+    viewModel { HomeViewModel(get(), get()) }
     viewModel { ServerListViewModel(get()) }
     viewModel { QueryLogViewModel(get()) }
     viewModel { SettingsViewModel(get()) }

@@ -137,7 +137,7 @@ class DnsVpnService : VpnService() {
         }
     }
 
-    private suspend fun runTunnel(dnsServer: DnsServer, logEnabled: Boolean) {
+    private fun runTunnel(dnsServer: DnsServer, logEnabled: Boolean) {
         val fd = vpnInterface ?: return
         val inputStream = FileInputStream(fd.fileDescriptor)
         val outputStream = FileOutputStream(fd.fileDescriptor)

@@ -28,7 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -38,6 +37,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import app.pwhs.dnsclient.data.local.entity.DnsQueryLogEntity
 import app.pwhs.dnsclient.ui.theme.StatusBlocked
 import app.pwhs.dnsclient.ui.theme.StatusOnline
@@ -56,9 +56,9 @@ fun QueryLogScreen(
     navigator: DestinationsNavigator,
     viewModel: QueryLogViewModel = koinViewModel()
 ) {
-    val logs by viewModel.logs.collectAsState()
-    val totalCount by viewModel.totalCount.collectAsState()
-    val avgLatency by viewModel.avgLatency.collectAsState()
+    val logs by viewModel.logs.collectAsStateWithLifecycle()
+    val totalCount by viewModel.totalCount.collectAsStateWithLifecycle()
+    val avgLatency by viewModel.avgLatency.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {

@@ -12,15 +12,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class ServerListUiState(
-    val servers: List<DnsServer> = DnsServer.presets,
-    val selectedServerKey: String = "Cloudflare",
-    val nextDnsProfileId: String = "",
-    val showNextDnsDialog: Boolean = false,
-    val showCustomDialog: Boolean = false,
-    val customDohUrl: String = ""
-)
-
 class ServerListViewModel(
     private val preferences: DnsPreferences
 ) : ViewModel() {
@@ -47,15 +38,26 @@ class ServerListViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ServerListUiState())
 
-    fun selectServer(server: DnsServer) {
+    fun onAction(action: ServerListUiAction) {
+        when (action) {
+            is ServerListUiAction.OnSelectServer -> selectServer(action.server)
+            is ServerListUiAction.OnConfirmNextDns -> confirmNextDns(action.profileId)
+            is ServerListUiAction.OnConfirmCustom -> confirmCustom(action.url)
+            is ServerListUiAction.OnDismissDialog -> dismissDialog()
+        }
+    }
+
+    private fun selectServer(server: DnsServer) {
         viewModelScope.launch {
             when (server) {
                 is DnsServer.NextDns -> {
                     _showNextDnsDialog.value = true
                 }
+
                 is DnsServer.Custom -> {
                     _showCustomDialog.value = true
                 }
+
                 else -> {
                     preferences.setSelectedServer(server.key)
                 }
@@ -63,7 +65,7 @@ class ServerListViewModel(
         }
     }
 
-    fun confirmNextDns(profileId: String) {
+    private fun confirmNextDns(profileId: String) {
         viewModelScope.launch {
             preferences.setNextDnsProfileId(profileId)
             preferences.setSelectedServer("NextDns")
@@ -71,7 +73,7 @@ class ServerListViewModel(
         }
     }
 
-    fun confirmCustom(url: String) {
+    private fun confirmCustom(url: String) {
         viewModelScope.launch {
             preferences.setCustomDohUrl(url)
             preferences.setSelectedServer("Custom")
@@ -79,7 +81,7 @@ class ServerListViewModel(
         }
     }
 
-    fun dismissDialog() {
+    private fun dismissDialog() {
         _showNextDnsDialog.value = false
         _showCustomDialog.value = false
     }

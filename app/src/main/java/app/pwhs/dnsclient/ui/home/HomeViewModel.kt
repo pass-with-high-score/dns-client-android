@@ -1,8 +1,11 @@
 package app.pwhs.dnsclient.ui.home
 
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
+import android.os.Build
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.pwhs.dnsclient.data.preferences.DnsPreferences
@@ -16,21 +19,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-data class HomeUiState(
-    val isConnected: Boolean = false,
-    val serverName: String = "Cloudflare",
-    val serverEmoji: String = "⚡",
-    val totalQueries: Long = 0,
-    val connectedSince: Long? = null
-)
-
-sealed class HomeEvent {
-    data class RequestVpnPermission(val intent: Intent) : HomeEvent()
-}
 
 class HomeViewModel(
-    private val preferences: DnsPreferences
-) : ViewModel() {
+    preferences: DnsPreferences,
+    application: Application
+) : AndroidViewModel(application) {
 
     private val _events = MutableSharedFlow<HomeEvent>()
     val events = _events.asSharedFlow()
@@ -61,12 +54,18 @@ class HomeViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), HomeUiState())
 
-    fun toggleVpn(context: Context) {
+    fun onAction(action: HomeUiAction) {
+        when (action) {
+            HomeUiAction.OnToggleVpn -> toggleVpn()
+        }
+    }
+
+    private fun toggleVpn() {
         viewModelScope.launch {
             if (DnsVpnService.isConnected.value) {
-                stopVpn(context)
+                stopVpn(getApplication<Application>().applicationContext)
             } else {
-                startVpn(context)
+                startVpn(getApplication<Application>().applicationContext)
             }
         }
     }
@@ -84,7 +83,12 @@ class HomeViewModel(
         val serviceIntent = Intent(context, DnsVpnService::class.java).apply {
             action = DnsVpnService.ACTION_START
         }
-        context.startForegroundService(serviceIntent)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(serviceIntent)
+        } else {
+            context.startService(serviceIntent)
+        }
     }
 
     private fun stopVpn(context: Context) {

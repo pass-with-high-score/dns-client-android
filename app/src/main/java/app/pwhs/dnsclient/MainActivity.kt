@@ -32,9 +32,11 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import app.pwhs.dnsclient.data.preferences.DnsPreferences
-import app.pwhs.dnsclient.ui.navigation.AppNavigation
 import app.pwhs.dnsclient.ui.theme.DNSClientTheme
+import com.ramcosta.composedestinations.DestinationsNavHost
+import com.ramcosta.composedestinations.generated.NavGraphs
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -56,7 +58,11 @@ class MainActivity : FragmentActivity() {
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    AppNavigation()
+                    val navController = rememberNavController()
+                    DestinationsNavHost(
+                        navGraph = NavGraphs.root,
+                        navController = navController
+                    )
                 }
 
                 AnimatedVisibility(

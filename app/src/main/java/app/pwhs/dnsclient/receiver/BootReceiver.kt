@@ -3,6 +3,7 @@ package app.pwhs.dnsclient.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import app.pwhs.dnsclient.data.preferences.DnsPreferences
 import app.pwhs.dnsclient.service.DnsVpnService
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +26,11 @@ class BootReceiver : BroadcastReceiver(), KoinComponent {
                 val serviceIntent = Intent(context, DnsVpnService::class.java).apply {
                     action = DnsVpnService.ACTION_START
                 }
-                context.startForegroundService(serviceIntent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(serviceIntent)
+                } else {
+                    context.startService(serviceIntent)
+                }
             }
         }
     }
